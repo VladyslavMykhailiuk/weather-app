@@ -15,6 +15,16 @@
 <body>
 
     <div class="container">
+        <div class="row">
+            <div class="col-12">
+                <div class="main-search-block">
+                    <input type="text" class="search-main">
+                    <button type="submit" class="form-btn main-btn">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
         <div class="box">
             <div class="row">
                 <div class="col-lg-9 col-md-9 col-sm-12">
@@ -33,11 +43,6 @@
                     <label class="active-unit" id="celsius-label-btn">
                         <button class="celsius-btn" id="celsius">
                             ºC
-                        </button>
-                    </label>
-                    <label class="alternative-unit" id="fahrenheit-label-btn">
-                        <button class="fahrenheit-btn" id="fahrenheit">
-                            ºF
                         </button>
                     </label>
                 </div>
@@ -67,6 +72,7 @@
             <div class="row hour-forecast" id="forecast"></div>
         </div>
     </div>
+    <div class="smallWeather"></div>
     <script src="./index.js"></script>
 </body>
 

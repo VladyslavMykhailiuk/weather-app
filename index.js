@@ -1,7 +1,10 @@
+const apiKey = "83731f87d9b6bc5582bf6f8ad128f58f";
+const apiUrl = "https://api.openweathermap.org/data/2.5/";
+
 function formatDate(timestamp) {
     let date = new Date(timestamp);
 
-    let weekDays = [
+    const weekDays = [
         "Sunday",
         "Monday",
         "Tuesday",
@@ -44,11 +47,7 @@ function displayRealTemp(response) {
 
     let tempElement = document.querySelector("#temp");
     celsiusCurrentTemp = Math.round(response.data.main.temp);
-    if (defaultUnit.classList.contains("active-unit")) {
-        tempElement.innerHTML = celsiusCurrentTemp;
-    } else {
-        tempElement.innerHTML = Math.round(celsiusCurrentTemp * 1.8 + 32);
-    }
+    tempElement.innerHTML = celsiusCurrentTemp;
 
     let humidityElement = document.querySelector("#humidity");
     humidityElement.innerHTML = response.data.main.humidity;
@@ -56,8 +55,6 @@ function displayRealTemp(response) {
     let windElement = document.querySelector("#wind");
     windElement.innerHTML = Math.round(response.data.wind.speed * 3.6);
 
-    localStorage.setItem('city', response.data.name);
-    localStorage.setItem('temp', Math.round(response.data.main.temp));
 }
 
 function displayForecast(response) {
@@ -69,51 +66,31 @@ function displayForecast(response) {
 
         let maxTempForecast = Math.round(forecast.main.temp_max);
         let minTempForecast = Math.round(forecast.main.temp_min);
-
-        if (defaultUnit.classList.contains("active-unit")) {
-            forecastElement.innerHTML += `
+        forecastElement.innerHTML += `
         <div class="col-2">
         <h6>
           ${formatHours(forecast.dt * 1000)}
         </h6>
         <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon
-                }@2x.png" alt="${forecast.weather[0].description}" height="75" />
+            }@2x.png" alt="${forecast.weather[0].description}" height="75" />
         <div>
           <strong><span class="max-temp">${maxTempForecast}</span></strong><span class="forecast-unit unit">ºC</span> <span class="min-temp">${minTempForecast}</span><span class="forecast-unit unit">ºC</span>
         </div>
         </div>
       `;
-        } else {
-            forecastElement.innerHTML += `
-        <div class="col-2">
-        <h6>
-          ${formatHours(forecast.dt * 1000)}
-        </h6>
-        <img src="http://openweathermap.org/img/wn/${forecast.weather[0].icon
-                }@2x.png" alt="${forecast.weather[0].description}" height="75" />
-        <div>
-          <strong><span class="max-temp">${Math.round(
-                    maxTempForecast * 1.8 + 32
-                )}</span></strong><span class="forecast-unit unit">ºF</span> <span class="min-temp">${Math.round(
-                    minTempForecast * 1.8 + 32
-                )}</span><span class="forecast-unit unit">ºF</span>
-        </div>
-        </div>
-      `;
-        }
     }
 }
 
 function search(city) {
-    let apiKey = "83731f87d9b6bc5582bf6f8ad128f58f";
-    let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
+    let baseUrl = `${apiUrl}weather?q=${city}&appid=${apiKey}&units=metric`;
 
-    axios.get(apiUrl).then(displayRealTemp);
+    axios.get(baseUrl).then(displayRealTemp);
 
-    apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+    baseUrl = `${apiUrl}forecast?q=${city}&appid=${apiKey}&units=metric`;
 
-    axios.get(apiUrl).then(displayForecast);
+    axios.get(baseUrl).then(displayForecast);
 }
+
 
 let searchedCity = document.querySelector("#submit-btn");
 searchedCity.addEventListener("click", function (event) {
@@ -132,119 +109,41 @@ currentLocation.addEventListener("click", function (event) {
         let latitude = position.coords.latitude;
         let longitude = position.coords.longitude;
 
-        let apiKey = "83731f87d9b6bc5582bf6f8ad128f58f";
-        let apiUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+        let baseUrl = `${apiUrl}weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
 
-        axios.get(apiUrl).then(displayRealTemp);
+        axios.get(baseUrl).then(displayRealTemp);
 
-        apiUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+        baseUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
 
-        axios.get(apiUrl).then(displayForecast);
+        axios.get(baseUrl).then(displayForecast);
     });
 });
 
-function displayTempInFahrenheit(event) {
-    document.getElementById("fahrenheit").style.background = "#f7e4df";
-    document.getElementById("celsius").style.background = "none";
-
-    let currentTempToF = document.querySelector("#temp");
-    currentTempToF.innerHTML = Math.round(celsiusCurrentTemp * 1.8 + 32);
-
-    let forecastMaxTempToF = document.querySelectorAll(".max-temp");
-    forecastMaxTempToF.innerHTML = null;
-    if (
-        document.querySelectorAll("small.weather-unit").item(0).innerHTML != "ºF"
-    ) {
-        for (let index = 0; index < forecastMaxTempToF.length; index++) {
-            forecastMaxTempToF[index].innerHTML = Math.round(
-                forecastMaxTempToF.item(index).innerHTML * 1.8 + 32
-            );
-        }
-    }
-
-    let forecastMinTempToF = document.querySelectorAll(".min-temp");
-    forecastMinTempToF.innerHTML = null;
-    if (
-        document.querySelectorAll("small.weather-unit").item(0).innerHTML != "ºF"
-    ) {
-        for (let index = 0; index < forecastMinTempToF.length; index++) {
-            forecastMinTempToF[index].innerHTML = Math.round(
-                forecastMinTempToF.item(index).innerHTML * 1.8 + 32
-            );
-        }
-    }
-
-    let unitF = document.querySelectorAll(".unit");
-    for (let index = 0; index < unitF.length; index++) {
-        unitF[index].innerHTML = "ºF";
-    }
-
-    document
-        .querySelector("#fahrenheit-label-btn")
-        .setAttribute("class", "active-unit");
-    document
-        .querySelector("#celsius-label-btn")
-        .setAttribute("class", "alternative-unit");
-
-    changeUnitToF.removeEventListener("click", displayTempInFahrenheit);
-    let changeUnitToC = document.querySelector("#celsius");
-    changeUnitToC.addEventListener("click", displayTempInCelsius);
-}
-let changeUnitToF = document.querySelector("#fahrenheit");
-changeUnitToF.addEventListener("click", displayTempInFahrenheit);
-
-function displayTempInCelsius(event) {
-    document.getElementById("fahrenheit").style.background = "none";
-    document.getElementById("celsius").style.background = "#f7e4df";
-
-    let currentTempToC = document.querySelector("#temp");
-    currentTempToC.innerHTML = celsiusCurrentTemp;
-
-    let forecastMaxTempToC = document.querySelectorAll(".max-temp");
-    forecastMaxTempToC.innerHTML = null;
-    if (
-        document.querySelectorAll("small.weather-unit").item(0).innerHTML != "ºC"
-    ) {
-        for (let index = 0; index < forecastMaxTempToC.length; index++) {
-            forecastMaxTempToC[index].innerHTML = Math.round(
-                (forecastMaxTempToC.item(index).innerHTML - 32) / 1.8
-            );
-        }
-    }
-
-    let forecastMinTempToC = document.querySelectorAll(".min-temp");
-    forecastMinTempToC.innerHTML = null;
-    if (
-        document.querySelectorAll("small.weather-unit").item(0).innerHTML != "ºC"
-    ) {
-        for (let index = 0; index < forecastMinTempToC.length; index++) {
-            forecastMinTempToC[index].innerHTML = Math.round(
-                (forecastMinTempToC.item(index).innerHTML - 32) / 1.8
-            );
-        }
-    }
-
-    let unitC = document.querySelectorAll(".unit");
-    for (let index = 0; index < unitC.length; index++) {
-        unitC[index].innerHTML = "ºC";
-    }
-
-    document
-        .querySelector("#celsius-label-btn")
-        .setAttribute("class", "active-unit");
-    document
-        .querySelector("#fahrenheit-label-btn")
-        .setAttribute("class", "alternative-unit");
-
-    changeUnitToC.removeEventListener("click", displayTempInCelsius);
-    let changeUnitToF = document.querySelector("#fahrenheit");
-    changeUnitToF.addEventListener("click", displayTempInFahrenheit);
-}
-let changeUnitToC = document.querySelector("#celsius");
-changeUnitToC.addEventListener("click", displayTempInCelsius);
-
-let celsiusCurrentTemp = null;
-
-let defaultUnit = document.querySelector(".active-unit");
-
 search("Kyiv");
+
+
+function createCard(response) {
+    const miniBox = document.createElement("div");
+    const smallWeather = document.querySelector(".smallWeather");
+    miniBox.classList.add('orange');
+    smallWeather.appendChild(miniBox);
+    let array = [];
+    array.push(response.data);
+    localStorage.setItem('array', JSON.stringify(array));
+    let result = JSON.parse(localStorage.getItem('array'));
+    miniBox.innerHTML += `City:<strong>${result[0].name}</strong><br>${Math.round(result[0].main.temp)}ºC`;
+
+}
+
+function searchForCard(city) {
+    let baseUrl = `${apiUrl}weather?q=${city}&appid=${apiKey}&units=metric`;
+    axios.get(baseUrl).then(createCard);
+}
+
+let mainBtn = document.querySelector('.main-btn');
+mainBtn.addEventListener("click", function (event) {
+    event.preventDefault();
+    let mainInput = document.querySelector('.search-main')
+    searchForCard(mainInput.value);
+
+})
