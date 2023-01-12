@@ -1,5 +1,7 @@
 const apiKey = "83731f87d9b6bc5582bf6f8ad128f58f";
 const apiUrl = "https://api.openweathermap.org/data/2.5/";
+let dataArray = [];
+dataArray = JSON.parse(localStorage.getItem('dataArray') || '[]');
 
 function formatDate(timestamp) {
     let date = new Date(timestamp);
@@ -123,27 +125,65 @@ search("Kyiv");
 
 
 function createCard(response) {
-    const miniBox = document.createElement("div");
+    let miniBox = document.createElement("div");
     const smallWeather = document.querySelector(".smallWeather");
+    let array = [];
     miniBox.classList.add('orange');
     smallWeather.appendChild(miniBox);
-    let array = [];
     array.push(response.data);
     localStorage.setItem('array', JSON.stringify(array));
     let result = JSON.parse(localStorage.getItem('array'));
     miniBox.innerHTML += `City:<strong>${result[0].name}</strong><br>${Math.round(result[0].main.temp)}ºC`;
-
+    dataArray.push(result[0]);
+    localStorage.setItem('dataArray', JSON.stringify(dataArray));
+    let updateInput = document.createElement('input');
+    miniBox.appendChild(updateInput);
+    let updateBtn = document.createElement('button');
+    updateBtn.innerHTML = 'GO';
+    miniBox.appendChild(updateBtn);
 }
+
 
 function searchForCard(city) {
     let baseUrl = `${apiUrl}weather?q=${city}&appid=${apiKey}&units=metric`;
     axios.get(baseUrl).then(createCard);
 }
 
+
 let mainBtn = document.querySelector('.main-btn');
 mainBtn.addEventListener("click", function (event) {
     event.preventDefault();
     let mainInput = document.querySelector('.search-main')
     searchForCard(mainInput.value);
-
 })
+
+
+window.onload = function (e) {
+    if (localStorage.getItem('dataArray').includes('')) {
+        let dataArr = JSON.parse(localStorage.getItem('dataArray'));
+        dataArr.forEach(el => {
+            const miniBox = document.createElement("div");
+            miniBox.classList.add('orange');
+            const smallWeather = document.querySelector(".smallWeather");
+            smallWeather.appendChild(miniBox);
+            miniBox.innerHTML = `City:<strong>${el.name}</strong><br>${Math.round(el.main.temp)}ºC`;
+            let updateInput = document.createElement('input');
+            miniBox.appendChild(updateInput);
+            let updateBtn = document.createElement('button');
+            updateBtn.innerHTML = 'GO';
+            miniBox.appendChild(updateBtn);
+            // updateBtn.onclick = () => {
+            //     // console.log(el);
+            //     let baseUrl = `${apiUrl}weather?q=${updateInput.value}&appid=${apiKey}&units=metric`;
+            //     axios.get(baseUrl).then(function (response) {
+            //         let a = response.data;
+            //         el = a;
+            //         console.log(el);
+            // TODO: ЗАМЕНИТЬ ЕЛЕМЕНТ В ЛОКАЛСТ
+            //TODO: УБРАТЬ ПОВТОРЯЮЩИЕСЯ ЕЛЕМЕНТЫ В МАССИВЕ
+            //     });
+            // }
+        });
+    }
+
+}
