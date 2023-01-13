@@ -1,20 +1,20 @@
 const apiKey = "83731f87d9b6bc5582bf6f8ad128f58f";
 const apiUrl = "https://api.openweathermap.org/data/2.5/";
-let dataArray = [];
-dataArray = JSON.parse(localStorage.getItem('dataArray') || '[]');
+let dataArray = JSON.parse(localStorage.getItem('dataArray')) || [];
+
+const weekDays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+];
 
 function formatDate(timestamp) {
     let date = new Date(timestamp);
 
-    const weekDays = [
-        "Sunday",
-        "Monday",
-        "Tuesday",
-        "Wednesday",
-        "Thursday",
-        "Friday",
-        "Saturday",
-    ];
     let weekDay = weekDays[date.getDay()];
 
     return `${weekDay} ${formatHours(timestamp)}`;
@@ -123,67 +123,134 @@ currentLocation.addEventListener("click", function (event) {
 
 search("Kyiv");
 
-
-function createCard(response) {
-    let miniBox = document.createElement("div");
+function createElement(param) {
     const smallWeather = document.querySelector(".smallWeather");
-    let array = [];
+    const miniBox = document.createElement("div");
+    const updateInput = document.createElement("input");
+    const updateBtn = document.createElement("button");
+    const deleteBtn = document.createElement("span");
+
+
+    miniBox.innerHTML += `<strong>${param.name}</strong><br>${Math.round(param.main.temp)}ºC`;
+    updateBtn.innerHTML = 'Edit';
+    deleteBtn.innerHTML = 'x';
     miniBox.classList.add('orange');
+    deleteBtn.classList.add('deleteBtn');
+
+
     smallWeather.appendChild(miniBox);
-    array.push(response.data);
-    localStorage.setItem('array', JSON.stringify(array));
-    let result = JSON.parse(localStorage.getItem('array'));
-    miniBox.innerHTML += `City:<strong>${result[0].name}</strong><br>${Math.round(result[0].main.temp)}ºC`;
-    dataArray.push(result[0]);
-    localStorage.setItem('dataArray', JSON.stringify(dataArray));
-    let updateInput = document.createElement('input');
+    miniBox.appendChild(deleteBtn);
     miniBox.appendChild(updateInput);
-    let updateBtn = document.createElement('button');
-    updateBtn.innerHTML = 'GO';
     miniBox.appendChild(updateBtn);
+
+
+    return [updateBtn, updateInput, miniBox, deleteBtn, smallWeather]
+}
+
+
+function drawCard(response) {
+    const forecast = response.data;
+
+
+    dataArray.push(forecast);
+    localStorage.setItem('dataArray', JSON.stringify(dataArray));
+
+    const cardElemetns = createElement(forecast);
+
+    dataArray.forEach(function (el, index) {
+
+        cardElemetns[0].onclick = () => {
+            let baseUrl = `${apiUrl}weather?q=${cardElemetns[1].value}&appid=${apiKey}&units=metric`;
+
+
+            axios.get(baseUrl).then(function (response) {
+                dataArray[index] = response.data;
+
+
+                localStorage.setItem('dataArray', JSON.stringify(dataArray));
+
+
+                cardElemetns[2].innerHTML = `<strong>${response.data.name}</strong><br>${Math.round(response.data.main.temp)}ºC`;
+
+
+                cardElemetns[2].appendChild(cardElemetns[0]);
+                cardElemetns[2].appendChild(cardElemetns[1]);
+                cardElemetns[2].appendChild(cardElemetns[3]);
+            });
+        }
+
+
+        cardElemetns[3].onclick = () => {
+            dataArray.splice(index, 1);
+            localStorage.setItem('dataArray', JSON.stringify(dataArray));
+
+            cardElemetns[4].removeChild(cardElemetns[2]);
+
+        }
+    });
+
 }
 
 
 function searchForCard(city) {
     let baseUrl = `${apiUrl}weather?q=${city}&appid=${apiKey}&units=metric`;
-    axios.get(baseUrl).then(createCard);
+
+
+    axios.get(baseUrl).then(drawCard);
+
+
 }
+
+
 
 
 let mainBtn = document.querySelector('.main-btn');
 mainBtn.addEventListener("click", function (event) {
     event.preventDefault();
+
+
     let mainInput = document.querySelector('.search-main')
+
+
     searchForCard(mainInput.value);
 })
 
 
-window.onload = function (e) {
-    if (localStorage.getItem('dataArray').includes('')) {
-        let dataArr = JSON.parse(localStorage.getItem('dataArray'));
-        dataArr.forEach(el => {
-            const miniBox = document.createElement("div");
-            miniBox.classList.add('orange');
-            const smallWeather = document.querySelector(".smallWeather");
-            smallWeather.appendChild(miniBox);
-            miniBox.innerHTML = `City:<strong>${el.name}</strong><br>${Math.round(el.main.temp)}ºC`;
-            let updateInput = document.createElement('input');
-            miniBox.appendChild(updateInput);
-            let updateBtn = document.createElement('button');
-            updateBtn.innerHTML = 'GO';
-            miniBox.appendChild(updateBtn);
-            // updateBtn.onclick = () => {
-            //     // console.log(el);
-            //     let baseUrl = `${apiUrl}weather?q=${updateInput.value}&appid=${apiKey}&units=metric`;
-            //     axios.get(baseUrl).then(function (response) {
-            //         let a = response.data;
-            //         el = a;
-            //         console.log(el);
-            // TODO: ЗАМЕНИТЬ ЕЛЕМЕНТ В ЛОКАЛСТ
-            //TODO: УБРАТЬ ПОВТОРЯЮЩИЕСЯ ЕЛЕМЕНТЫ В МАССИВЕ
-            //     });
-            // }
+
+dataArray.forEach(function (el, index) {
+    const cardElemetns = createElement(el);
+
+
+    cardElemetns[0].onclick = () => {
+        let baseUrl = `${apiUrl}weather?q=${cardElemetns[1].value}&appid=${apiKey}&units=metric`;
+
+
+        axios.get(baseUrl).then(function (response) {
+            dataArray[index] = response.data;
+
+
+            localStorage.setItem('dataArray', JSON.stringify(dataArray));
+
+
+            cardElemetns[2].innerHTML = `<strong>${response.data.name}</strong><br>${Math.round(response.data.main.temp)}ºC`;
+
+
+            cardElemetns[2].appendChild(cardElemetns[0]);
+            cardElemetns[2].appendChild(cardElemetns[1]);
+            cardElemetns[2].appendChild(cardElemetns[3]);
         });
     }
 
-}
+
+    cardElemetns[3].onclick = () => {
+        dataArray.splice(index, 1);
+
+
+        localStorage.setItem('dataArray', JSON.stringify(dataArray));
+
+
+        cardElemetns[4].removeChild(cardElemetns[2]);
+
+    }
+});
+
