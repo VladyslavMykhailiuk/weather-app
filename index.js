@@ -31,36 +31,33 @@ function formatHours(timestamp) {
 
 function displayRealTemp(response) {
     let cityElement = document.querySelector("#city");
-    cityElement.innerHTML = response.data.name;
-
     let dateElement = document.querySelector("#date");
-    dateElement.innerHTML = formatDate(response.data.dt * 1000);
-
     let descriptionElement = document.querySelector("#weather-description");
-    descriptionElement.innerHTML = response.data.weather[0].description;
-
     let weatherIconElement = document.querySelector("#weather-icon");
+    let tempElement = document.querySelector("#temp");
+    let humidityElement = document.querySelector("#humidity");
+    let windElement = document.querySelector("#wind");
+
+
     let iconElement = response.data.weather[0].icon;
+    cityElement.innerHTML = response.data.name;
+    dateElement.innerHTML = formatDate(response.data.dt * 1000);
+    descriptionElement.innerHTML = response.data.weather[0].description;
     weatherIconElement.setAttribute(
         "src",
         `http://openweathermap.org/img/wn/${iconElement}@2x.png`
     );
     weatherIconElement.setAttribute("alt", response.data.weather[0].description);
-
-    let tempElement = document.querySelector("#temp");
     celsiusCurrentTemp = Math.round(response.data.main.temp);
     tempElement.innerHTML = celsiusCurrentTemp;
-
-    let humidityElement = document.querySelector("#humidity");
     humidityElement.innerHTML = response.data.main.humidity;
-
-    let windElement = document.querySelector("#wind");
     windElement.innerHTML = Math.round(response.data.wind.speed * 3.6);
-
 }
 
 function displayForecast(response) {
     let forecastElement = document.querySelector("#forecast");
+
+
     forecastElement.innerHTML = null;
 
     for (let index = 0; index < 6; index++) {
@@ -101,6 +98,8 @@ searchedCity.addEventListener("click", function (event) {
     let cityInput = document.querySelector("#searched-city");
 
     search(cityInput.value);
+
+    cityInput.value = '';
 });
 
 let currentLocation = document.querySelector("#location-btn");
@@ -136,59 +135,98 @@ function createElement(param) {
     deleteBtn.innerHTML = 'x';
     miniBox.classList.add('orange');
     deleteBtn.classList.add('deleteBtn');
+    updateBtn.classList.add('editBtn');
+    updateInput.classList.add('updateInput');
 
 
     smallWeather.appendChild(miniBox);
     miniBox.appendChild(deleteBtn);
     miniBox.appendChild(updateInput);
     miniBox.appendChild(updateBtn);
+}
 
 
-    return [updateBtn, updateInput, miniBox, deleteBtn, smallWeather]
+function deleteCard() {
+    let arrDelBtn = [];
+    let arrBoxBtn = [];
+
+    const weath = document.querySelector('.smallWeather');
+    arrDelBtn = document.querySelectorAll('.deleteBtn')
+    arrBoxBtn = document.querySelectorAll('.orange');
+
+
+    for (let i = 0; i < arrDelBtn.length; i++) {
+        arrDelBtn[i].onclick = () => {
+            dataArray.splice(i, 1);
+
+
+            localStorage.setItem('dataArray', JSON.stringify(dataArray));
+
+
+            weath.removeChild(arrBoxBtn[i]);
+
+
+            deleteCard();
+        }
+    }
+}
+
+
+function updateCard() {
+    let arrDelBtn = [];
+    let arrUpdateBtns = [];
+    let arrInputValues = [];
+    let arrBoxBtn = [];
+
+
+    arrUpdateBtns = document.querySelectorAll('.editBtn');
+    arrInputValues = document.querySelectorAll('.updateInput');
+    arrBoxBtn = document.querySelectorAll('.orange');
+    arrDelBtn = document.querySelectorAll('.deleteBtn')
+
+
+    for (let i = 0; i < arrUpdateBtns.length; i++) {
+        arrUpdateBtns[i].onclick = () => {
+            let baseUrl = `${apiUrl}weather?q=${arrInputValues[i].value}&appid=${apiKey}&units=metric`;
+
+
+            axios.get(baseUrl).then(function (response) {
+                dataArray[i] = response.data;
+
+
+                localStorage.setItem('dataArray', JSON.stringify(dataArray));
+
+
+                arrBoxBtn[i].innerHTML = `<strong>${response.data.name}</strong><br>${Math.round(response.data.main.temp)}ºC`;
+
+
+                arrBoxBtn[i].appendChild(arrInputValues[i]);
+                arrBoxBtn[i].appendChild(arrUpdateBtns[i]);
+                arrBoxBtn[i].appendChild(arrDelBtn[i]);
+
+                arrInputValues[i].value = '';
+            });
+        }
+    }
 }
 
 
 function drawCard(response) {
     const forecast = response.data;
 
-
+    createElement(forecast);
     dataArray.push(forecast);
+
+
     localStorage.setItem('dataArray', JSON.stringify(dataArray));
 
-    const cardElemetns = createElement(forecast);
-
-    dataArray.forEach(function (el, index) {
-
-        cardElemetns[0].onclick = () => {
-            let baseUrl = `${apiUrl}weather?q=${cardElemetns[1].value}&appid=${apiKey}&units=metric`;
 
 
-            axios.get(baseUrl).then(function (response) {
-                dataArray[index] = response.data;
+
+    updateCard();
 
 
-                localStorage.setItem('dataArray', JSON.stringify(dataArray));
-
-
-                cardElemetns[2].innerHTML = `<strong>${response.data.name}</strong><br>${Math.round(response.data.main.temp)}ºC`;
-
-
-                cardElemetns[2].appendChild(cardElemetns[0]);
-                cardElemetns[2].appendChild(cardElemetns[1]);
-                cardElemetns[2].appendChild(cardElemetns[3]);
-            });
-        }
-
-
-        cardElemetns[3].onclick = () => {
-            dataArray.splice(index, 1);
-            localStorage.setItem('dataArray', JSON.stringify(dataArray));
-
-            cardElemetns[4].removeChild(cardElemetns[2]);
-
-        }
-    });
-
+    deleteCard();
 }
 
 
@@ -197,10 +235,7 @@ function searchForCard(city) {
 
 
     axios.get(baseUrl).then(drawCard);
-
-
 }
-
 
 
 
@@ -211,46 +246,21 @@ mainBtn.addEventListener("click", function (event) {
 
     let mainInput = document.querySelector('.search-main')
 
+    input = mainInput.value;
 
     searchForCard(mainInput.value);
+
+    mainInput.value = '';
 })
 
 
 
-dataArray.forEach(function (el, index) {
-    const cardElemetns = createElement(el);
+function drawCardAfterRefreshPage() {
+    dataArray.forEach(function (el) {
+        createElement(el);
+        updateCard();
+    });
+    deleteCard();
+}
 
-
-    cardElemetns[0].onclick = () => {
-        let baseUrl = `${apiUrl}weather?q=${cardElemetns[1].value}&appid=${apiKey}&units=metric`;
-
-
-        axios.get(baseUrl).then(function (response) {
-            dataArray[index] = response.data;
-
-
-            localStorage.setItem('dataArray', JSON.stringify(dataArray));
-
-
-            cardElemetns[2].innerHTML = `<strong>${response.data.name}</strong><br>${Math.round(response.data.main.temp)}ºC`;
-
-
-            cardElemetns[2].appendChild(cardElemetns[0]);
-            cardElemetns[2].appendChild(cardElemetns[1]);
-            cardElemetns[2].appendChild(cardElemetns[3]);
-        });
-    }
-
-
-    cardElemetns[3].onclick = () => {
-        dataArray.splice(index, 1);
-
-
-        localStorage.setItem('dataArray', JSON.stringify(dataArray));
-
-
-        cardElemetns[4].removeChild(cardElemetns[2]);
-
-    }
-});
-
+drawCardAfterRefreshPage();
