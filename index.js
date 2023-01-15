@@ -223,13 +223,31 @@ function searchForCard(city) {
     }).then(drawCard);
 }
 
+let newArr = [];
+
 const mainBtn = document.querySelector('.main-btn');
 mainBtn.addEventListener("click", function (event) {
     event.preventDefault();
 
-    const mainInput = document.querySelector('.search-main')
+    const popup = document.querySelector('.popup');
+    const mainInput = document.querySelector('.search-main');
 
-    searchForCard(mainInput.value);
+
+    for (let i = 0; i < dataArray.length; i++) {
+        newArr.push(dataArray[i].name);
+    }
+
+    if (!newArr.includes(mainInput.value)) {
+        searchForCard(mainInput.value);
+    }
+
+    else {
+        popup.style.display = 'block';
+
+        setTimeout(() => {
+            popup.style.display = 'none';
+        }, 2000);
+    }
 
     mainInput.value = '';
 })

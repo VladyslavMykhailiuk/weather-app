@@ -3,6 +3,8 @@ body {
     background-color: rgb(8, 69, 94);
 }
 
+
+
 .container {
     display: flex;
     justify-content: center;
@@ -127,6 +129,7 @@ h6 {
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .search-main {
@@ -139,6 +142,12 @@ h6 {
     border: none;
     outline: none;
 }
+
+.main-search-block .err {
+    border: 3px solid red;
+}
+
+
 
 .main-btn {
     background-color: rgb(249, 249, 249);
@@ -211,4 +220,44 @@ h6 {
     .search-main {
         width: 200px;
     }
+}
+
+
+.popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    z-index: 1000;
+    user-select: none;
+    display: none;
+}
+
+.popup::before {
+    content: '';
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    position: fixed;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    filter: blur(50px);
+}
+
+.popup .contentBox {
+    position: relative;
+    width: 400px;
+    height: 100px;
+    background: white;
+    border-radius: 20px;
+    display: flex;
+    box-shadow: 0 5px 15px rgba(0, 0, 0.1);
+}
+
+.popup .popup-content {
+    text-align: center;
+    color: red;
+    margin-top: 25px;
+    font-weight: 500;
 }
