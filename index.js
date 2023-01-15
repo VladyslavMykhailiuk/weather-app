@@ -30,16 +30,15 @@ function formatHours(timestamp) {
 }
 
 function displayRealTemp(response) {
-    let cityElement = document.querySelector("#city");
-    let dateElement = document.querySelector("#date");
-    let descriptionElement = document.querySelector("#weather-description");
-    let weatherIconElement = document.querySelector("#weather-icon");
-    let tempElement = document.querySelector("#temp");
-    let humidityElement = document.querySelector("#humidity");
-    let windElement = document.querySelector("#wind");
+    const cityElement = document.querySelector("#city");
+    const dateElement = document.querySelector("#date");
+    const descriptionElement = document.querySelector("#weather-description");
+    const weatherIconElement = document.querySelector("#weather-icon");
+    const tempElement = document.querySelector("#temp");
+    const humidityElement = document.querySelector("#humidity");
+    const windElement = document.querySelector("#wind");
+    const iconElement = response.data.weather[0].icon;
 
-
-    let iconElement = response.data.weather[0].icon;
     cityElement.innerHTML = response.data.name;
     dateElement.innerHTML = formatDate(response.data.dt * 1000);
     descriptionElement.innerHTML = response.data.weather[0].description;
@@ -55,16 +54,15 @@ function displayRealTemp(response) {
 }
 
 function displayForecast(response) {
-    let forecastElement = document.querySelector("#forecast");
-
+    const forecastElement = document.querySelector("#forecast");
 
     forecastElement.innerHTML = null;
 
     for (let index = 0; index < 6; index++) {
-        let forecast = response.data.list[index];
+        const forecast = response.data.list[index];
 
-        let maxTempForecast = Math.round(forecast.main.temp_max);
-        let minTempForecast = Math.round(forecast.main.temp_min);
+        const maxTempForecast = Math.round(forecast.main.temp_max);
+        const minTempForecast = Math.round(forecast.main.temp_min);
         forecastElement.innerHTML += `
         <div class="col-2">
         <h6>
@@ -91,24 +89,24 @@ function search(city) {
 }
 
 
-let searchedCity = document.querySelector("#submit-btn");
+const searchedCity = document.querySelector("#submit-btn");
 searchedCity.addEventListener("click", function (event) {
     event.preventDefault();
 
-    let cityInput = document.querySelector("#searched-city");
+    const cityInput = document.querySelector("#searched-city");
 
     search(cityInput.value);
 
     cityInput.value = '';
 });
 
-let currentLocation = document.querySelector("#location-btn");
+const currentLocation = document.querySelector("#location-btn");
 currentLocation.addEventListener("click", function (event) {
     event.preventDefault();
 
     navigator.geolocation.getCurrentPosition(function (position) {
-        let latitude = position.coords.latitude;
-        let longitude = position.coords.longitude;
+        const latitude = position.coords.latitude;
+        const longitude = position.coords.longitude;
 
         let baseUrl = `${apiUrl}weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
 
@@ -129,7 +127,6 @@ function createElement(param) {
     const updateBtn = document.createElement("button");
     const deleteBtn = document.createElement("span");
 
-
     miniBox.innerHTML += `<strong>${param.name}</strong><br>${Math.round(param.main.temp)}ºC`;
     updateBtn.innerHTML = 'Edit';
     deleteBtn.innerHTML = 'x';
@@ -137,7 +134,6 @@ function createElement(param) {
     deleteBtn.classList.add('deleteBtn');
     updateBtn.classList.add('editBtn');
     updateInput.classList.add('updateInput');
-
 
     smallWeather.appendChild(miniBox);
     miniBox.appendChild(deleteBtn);
@@ -147,24 +143,17 @@ function createElement(param) {
 
 
 function deleteCard() {
-    let arrDelBtn = [];
-    let arrBoxBtn = [];
-
+    const arrDelBtn = document.querySelectorAll('.deleteBtn');
+    const arrBoxBtn = document.querySelectorAll('.orange');
     const weath = document.querySelector('.smallWeather');
-    arrDelBtn = document.querySelectorAll('.deleteBtn')
-    arrBoxBtn = document.querySelectorAll('.orange');
-
 
     for (let i = 0; i < arrDelBtn.length; i++) {
         arrDelBtn[i].onclick = () => {
             dataArray.splice(i, 1);
 
-
             localStorage.setItem('dataArray', JSON.stringify(dataArray));
 
-
             weath.removeChild(arrBoxBtn[i]);
-
 
             deleteCard();
         }
@@ -173,32 +162,21 @@ function deleteCard() {
 
 
 function updateCard() {
-    let arrDelBtn = [];
-    let arrUpdateBtns = [];
-    let arrInputValues = [];
-    let arrBoxBtn = [];
-
-
-    arrUpdateBtns = document.querySelectorAll('.editBtn');
-    arrInputValues = document.querySelectorAll('.updateInput');
-    arrBoxBtn = document.querySelectorAll('.orange');
-    arrDelBtn = document.querySelectorAll('.deleteBtn')
-
+    const arrDelBtn = document.querySelectorAll('.deleteBtn');
+    const arrUpdateBtns = document.querySelectorAll('.editBtn');
+    const arrInputValues = document.querySelectorAll('.updateInput');
+    const arrBoxBtn = document.querySelectorAll('.orange');
 
     for (let i = 0; i < arrUpdateBtns.length; i++) {
         arrUpdateBtns[i].onclick = () => {
             let baseUrl = `${apiUrl}weather?q=${arrInputValues[i].value}&appid=${apiKey}&units=metric`;
 
-
             axios.get(baseUrl).then(function (response) {
                 dataArray[i] = response.data;
 
-
                 localStorage.setItem('dataArray', JSON.stringify(dataArray));
 
-
                 arrBoxBtn[i].innerHTML = `<strong>${response.data.name}</strong><br>${Math.round(response.data.main.temp)}ºC`;
-
 
                 arrBoxBtn[i].appendChild(arrInputValues[i]);
                 arrBoxBtn[i].appendChild(arrUpdateBtns[i]);
@@ -210,41 +188,30 @@ function updateCard() {
     }
 }
 
-
 function drawCard(response) {
     const forecast = response.data;
 
     createElement(forecast);
     dataArray.push(forecast);
 
-
     localStorage.setItem('dataArray', JSON.stringify(dataArray));
 
-
-
-
     updateCard();
-
 
     deleteCard();
 }
 
-
 function searchForCard(city) {
     let baseUrl = `${apiUrl}weather?q=${city}&appid=${apiKey}&units=metric`;
-
 
     axios.get(baseUrl).then(drawCard);
 }
 
-
-
-let mainBtn = document.querySelector('.main-btn');
+const mainBtn = document.querySelector('.main-btn');
 mainBtn.addEventListener("click", function (event) {
     event.preventDefault();
 
-
-    let mainInput = document.querySelector('.search-main')
+    const mainInput = document.querySelector('.search-main')
 
     input = mainInput.value;
 
@@ -252,8 +219,6 @@ mainBtn.addEventListener("click", function (event) {
 
     mainInput.value = '';
 })
-
-
 
 function drawCardAfterRefreshPage() {
     dataArray.forEach(function (el) {
@@ -264,3 +229,5 @@ function drawCardAfterRefreshPage() {
 }
 
 drawCardAfterRefreshPage();
+
+
