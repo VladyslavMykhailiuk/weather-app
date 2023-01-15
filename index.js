@@ -1,6 +1,6 @@
 import axiosInstance from "./instance.js";
 
-let dataArray = JSON.parse(localStorage.getItem('dataArray')) || [];
+const dataArray = JSON.parse(localStorage.getItem('dataArray')) || [];
 
 const weekDays = [
     "Sunday",
@@ -13,18 +13,18 @@ const weekDays = [
 ];
 
 function formatDate(timestamp) {
-    let date = new Date(timestamp);
+    const date = new Date(timestamp);
 
-    let weekDay = weekDays[date.getDay()];
+    const weekDay = weekDays[date.getDay()];
 
     return `${weekDay} ${formatHours(timestamp)}`;
 }
 
 function formatHours(timestamp) {
-    let date = new Date(timestamp);
+    const date = new Date(timestamp);
 
-    let hours = ("0" + date.getHours()).slice(-2);
-    let minutes = ("0" + date.getMinutes()).slice(-2);
+    const hours = ("0" + date.getHours()).slice(-2);
+    const minutes = ("0" + date.getMinutes()).slice(-2);
 
     return `${hours}:${minutes}`;
 }
