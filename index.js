@@ -83,16 +83,12 @@ function search(city) {
     axiosInstance.get('weather', {
         params: {
             "q": city,
-            'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
-            'units': 'metric'
         },
     }).then(displayRealTemp);
 
     axiosInstance.get('forecast', {
         params: {
             "q": city,
-            'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
-            'units': 'metric'
         },
     }).then(displayForecast);
 }
@@ -120,8 +116,6 @@ currentLocation.addEventListener("click", function (event) {
             params: {
                 "lat": latitude,
                 'lon': longitude,
-                'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
-                'units': 'metric'
             },
         }).then(displayRealTemp);
 
@@ -129,8 +123,6 @@ currentLocation.addEventListener("click", function (event) {
             params: {
                 "lat": latitude,
                 'lon': longitude,
-                'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
-                'units': 'metric'
             },
         }).then(displayForecast);
     });
@@ -191,8 +183,6 @@ function updateCard() {
             axiosInstance.get('weather', {
                 params: {
                     "q": arrInputValues[i].value,
-                    'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
-                    'units': 'metric'
                 },
             }).then(function (response) {
                 dataArray[i] = response.data;
@@ -229,8 +219,6 @@ function searchForCard(city) {
     axiosInstance.get('weather', {
         params: {
             "q": city,
-            'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
-            'units': 'metric'
         },
     }).then(drawCard);
 }
