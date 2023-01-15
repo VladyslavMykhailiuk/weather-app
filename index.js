@@ -1,5 +1,5 @@
-const apiKey = "83731f87d9b6bc5582bf6f8ad128f58f";
-const apiUrl = "https://api.openweathermap.org/data/2.5/";
+import axiosInstance from "./instance.js";
+
 let dataArray = JSON.parse(localStorage.getItem('dataArray')) || [];
 
 const weekDays = [
@@ -38,6 +38,7 @@ function displayRealTemp(response) {
     const humidityElement = document.querySelector("#humidity");
     const windElement = document.querySelector("#wind");
     const iconElement = response.data.weather[0].icon;
+    const celsiusCurrentTemp = Math.round(response.data.main.temp);
 
     cityElement.innerHTML = response.data.name;
     dateElement.innerHTML = formatDate(response.data.dt * 1000);
@@ -47,7 +48,6 @@ function displayRealTemp(response) {
         `http://openweathermap.org/img/wn/${iconElement}@2x.png`
     );
     weatherIconElement.setAttribute("alt", response.data.weather[0].description);
-    celsiusCurrentTemp = Math.round(response.data.main.temp);
     tempElement.innerHTML = celsiusCurrentTemp;
     humidityElement.innerHTML = response.data.main.humidity;
     windElement.innerHTML = Math.round(response.data.wind.speed * 3.6);
@@ -78,16 +78,24 @@ function displayForecast(response) {
     }
 }
 
+
 function search(city) {
-    let baseUrl = `${apiUrl}weather?q=${city}&appid=${apiKey}&units=metric`;
+    axiosInstance.get('weather', {
+        params: {
+            "q": city,
+            'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
+            'units': 'metric'
+        },
+    }).then(displayRealTemp);
 
-    axios.get(baseUrl).then(displayRealTemp);
-
-    baseUrl = `${apiUrl}forecast?q=${city}&appid=${apiKey}&units=metric`;
-
-    axios.get(baseUrl).then(displayForecast);
+    axiosInstance.get('forecast', {
+        params: {
+            "q": city,
+            'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
+            'units': 'metric'
+        },
+    }).then(displayForecast);
 }
-
 
 const searchedCity = document.querySelector("#submit-btn");
 searchedCity.addEventListener("click", function (event) {
@@ -108,13 +116,23 @@ currentLocation.addEventListener("click", function (event) {
         const latitude = position.coords.latitude;
         const longitude = position.coords.longitude;
 
-        let baseUrl = `${apiUrl}weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+        axiosInstance.get('weather', {
+            params: {
+                "lat": latitude,
+                'lon': longitude,
+                'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
+                'units': 'metric'
+            },
+        }).then(displayRealTemp);
 
-        axios.get(baseUrl).then(displayRealTemp);
-
-        baseUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
-
-        axios.get(baseUrl).then(displayForecast);
+        axiosInstance.get('forecast', {
+            params: {
+                "lat": latitude,
+                'lon': longitude,
+                'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
+                'units': 'metric'
+            },
+        }).then(displayForecast);
     });
 });
 
@@ -169,9 +187,14 @@ function updateCard() {
 
     for (let i = 0; i < arrUpdateBtns.length; i++) {
         arrUpdateBtns[i].onclick = () => {
-            let baseUrl = `${apiUrl}weather?q=${arrInputValues[i].value}&appid=${apiKey}&units=metric`;
 
-            axios.get(baseUrl).then(function (response) {
+            axiosInstance.get('weather', {
+                params: {
+                    "q": arrInputValues[i].value,
+                    'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
+                    'units': 'metric'
+                },
+            }).then(function (response) {
                 dataArray[i] = response.data;
 
                 localStorage.setItem('dataArray', JSON.stringify(dataArray));
@@ -184,6 +207,7 @@ function updateCard() {
 
                 arrInputValues[i].value = '';
             });
+
         }
     }
 }
@@ -202,9 +226,13 @@ function drawCard(response) {
 }
 
 function searchForCard(city) {
-    let baseUrl = `${apiUrl}weather?q=${city}&appid=${apiKey}&units=metric`;
-
-    axios.get(baseUrl).then(drawCard);
+    axiosInstance.get('weather', {
+        params: {
+            "q": city,
+            'appid': '83731f87d9b6bc5582bf6f8ad128f58f',
+            'units': 'metric'
+        },
+    }).then(drawCard);
 }
 
 const mainBtn = document.querySelector('.main-btn');
@@ -212,8 +240,6 @@ mainBtn.addEventListener("click", function (event) {
     event.preventDefault();
 
     const mainInput = document.querySelector('.search-main')
-
-    input = mainInput.value;
 
     searchForCard(mainInput.value);
 
