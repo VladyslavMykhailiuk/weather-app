@@ -60,7 +60,6 @@ function displayForecast(response) {
 
     for (let index = 0; index < 6; index++) {
         const forecast = response.data.list[index];
-
         const maxTempForecast = Math.round(forecast.main.temp_max);
         const minTempForecast = Math.round(forecast.main.temp_min);
         forecastElement.innerHTML += `
@@ -93,11 +92,13 @@ function search(city) {
     }).then(displayForecast);
 }
 
+const cityInput = document.querySelector("#searched-city");
 const searchedCity = document.querySelector("#submit-btn");
+
+new google.maps.places.Autocomplete(cityInput);
+
 searchedCity.addEventListener("click", function (event) {
     event.preventDefault();
-
-    const cityInput = document.querySelector("#searched-city");
 
     search(cityInput.value);
 
@@ -153,7 +154,6 @@ function createElement(param) {
 
 let newArr = [];
 
-
 function deleteCard() {
     const arrDelBtn = document.querySelectorAll('.deleteBtn');
     const arrBoxBtn = document.querySelectorAll('.orange');
@@ -174,7 +174,6 @@ function deleteCard() {
         }
     }
 }
-
 
 function updateCard() {
     const arrDelBtn = document.querySelectorAll('.deleteBtn');
@@ -232,18 +231,20 @@ function searchForCard(city) {
 }
 
 const mainBtn = document.querySelector('.main-btn');
+const mainInput = document.querySelector('.search-main');
+
+new google.maps.places.Autocomplete(mainInput);
+
 mainBtn.addEventListener("click", function (event) {
     event.preventDefault();
 
     const popup = document.querySelector('.popup');
-    const mainInput = document.querySelector('.search-main');
-
 
     for (let i = 0; i < dataArray.length; i++) {
         newArr.push(dataArray[i].name);
     }
 
-    if (!newArr.includes(mainInput.value)) {
+    if (!newArr.includes(mainInput.value.split(',')[0])) {
         searchForCard(mainInput.value);
     }
 
