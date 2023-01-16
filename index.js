@@ -153,6 +153,9 @@ function createElement(param) {
 }
 
 let newArr = [];
+for (let i = 0; i < dataArray.length; i++) {
+    newArr.push(dataArray[i].name)
+}
 
 function deleteCard() {
     const arrDelBtn = document.querySelectorAll('.deleteBtn');
@@ -163,16 +166,25 @@ function deleteCard() {
         arrDelBtn[i].onclick = () => {
             dataArray.splice(i, 1);
 
-            newArr = newArr.splice(i, 1);
+            newArr.splice(i, 1);
 
             localStorage.setItem('dataArray', JSON.stringify(dataArray));
 
             weath.removeChild(arrBoxBtn[i]);
 
             deleteCard();
-            newArr = newArr.splice(i, 1);
         }
     }
+}
+
+const popup = document.querySelector('.popup');
+
+function drawPopup() {
+    popup.style.display = 'block';
+
+    setTimeout(() => {
+        popup.style.display = 'none';
+    }, 2000);
 }
 
 function updateCard() {
@@ -184,27 +196,31 @@ function updateCard() {
     for (let i = 0; i < arrUpdateBtns.length; i++) {
         arrUpdateBtns[i].onclick = () => {
 
-            axiosInstance.get('weather', {
-                params: {
-                    "q": arrInputValues[i].value,
-                },
-            }).then(function (response) {
-                dataArray[i] = response.data;
+            if (!newArr.includes(arrInputValues[i].value)) {
+                axiosInstance.get('weather', {
+                    params: {
+                        "q": arrInputValues[i].value,
+                    },
+                }).then(function (response) {
+                    dataArray[i] = response.data;
 
-                localStorage.setItem('dataArray', JSON.stringify(dataArray));
+                    localStorage.setItem('dataArray', JSON.stringify(dataArray));
 
-                arrBoxBtn[i].innerHTML = `<strong>${response.data.name}</strong><br>${Math.round(response.data.main.temp)}ºC`;
+                    arrBoxBtn[i].innerHTML = `<strong>${response.data.name}</strong><br>${Math.round(response.data.main.temp)}ºC`;
 
-                arrBoxBtn[i].appendChild(arrInputValues[i]);
-                arrBoxBtn[i].appendChild(arrUpdateBtns[i]);
-                arrBoxBtn[i].appendChild(arrDelBtn[i]);
+                    arrBoxBtn[i].appendChild(arrInputValues[i]);
+                    arrBoxBtn[i].appendChild(arrUpdateBtns[i]);
+                    arrBoxBtn[i].appendChild(arrDelBtn[i]);
 
-                newArr.splice(i, 1);
-                newArr.push(dataArray[i]);
+                    newArr.splice(i, 1, dataArray[i].name);
+                });
+            }
 
-                arrInputValues[i].value = '';
-            });
+            else {
+                drawPopup()
+            }
 
+            arrInputValues[i].value = '';
         }
     }
 }
@@ -238,22 +254,13 @@ new google.maps.places.Autocomplete(mainInput);
 mainBtn.addEventListener("click", function (event) {
     event.preventDefault();
 
-    const popup = document.querySelector('.popup');
-
-    for (let i = 0; i < dataArray.length; i++) {
-        newArr.push(dataArray[i].name);
-    }
-
     if (!newArr.includes(mainInput.value.split(',')[0])) {
         searchForCard(mainInput.value);
+        newArr.push(mainInput.value.split(',')[0]);
     }
 
     else {
-        popup.style.display = 'block';
-
-        setTimeout(() => {
-            popup.style.display = 'none';
-        }, 2000);
+        drawPopup();
     }
 
     mainInput.value = '';
