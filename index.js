@@ -151,6 +151,8 @@ function createElement(param) {
     miniBox.appendChild(updateBtn);
 }
 
+let newArr = [];
+
 
 function deleteCard() {
     const arrDelBtn = document.querySelectorAll('.deleteBtn');
@@ -161,11 +163,14 @@ function deleteCard() {
         arrDelBtn[i].onclick = () => {
             dataArray.splice(i, 1);
 
+            newArr = newArr.splice(i, 1);
+
             localStorage.setItem('dataArray', JSON.stringify(dataArray));
 
             weath.removeChild(arrBoxBtn[i]);
 
             deleteCard();
+            newArr = newArr.splice(i, 1);
         }
     }
 }
@@ -195,6 +200,9 @@ function updateCard() {
                 arrBoxBtn[i].appendChild(arrUpdateBtns[i]);
                 arrBoxBtn[i].appendChild(arrDelBtn[i]);
 
+                newArr.splice(i, 1);
+                newArr.push(dataArray[i]);
+
                 arrInputValues[i].value = '';
             });
 
@@ -222,8 +230,6 @@ function searchForCard(city) {
         },
     }).then(drawCard);
 }
-
-let newArr = [];
 
 const mainBtn = document.querySelector('.main-btn');
 mainBtn.addEventListener("click", function (event) {
@@ -261,5 +267,3 @@ function drawCardAfterRefreshPage() {
 }
 
 drawCardAfterRefreshPage();
-
-
